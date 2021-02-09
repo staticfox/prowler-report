@@ -6,20 +6,69 @@
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <style type="text/css">
       .container {
-        max-width: 500px;
-        padding-top: 100px;
+        padding-top: 80px;
+      }
+      .bg-green {
+        background-color: rgba(102,178,102,.8);
+      }
+      .bg-red {
+        background-color: rgba(255,76,76,.8);
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <p>Loop through the list:</p>
-      <ul>
+      <h1>Totals</h1>
+      <p>Accounts: {{ totals['accounts'] | length }}</p>
+      <p>Regions: {{ totals['regions'] | length }}</p>
+      <p>Total Scans: {{ totals['scan_results'] | length }}</p>
+      <p>Passes: {{ totals['passes'] | length }}</p>
+      <p>Fails: {{ totals['fails'] | length }}</p>
+      <p>Infos: {{ totals['infos'] | length }}</p>
+      <h1>Findings</h1>
+      <table class="table table-striped table-sm">
+      <thead>
+        <tr>
+          <th>Account ID</th>
+          <th>Region</th>
+          <th>Title ID</th>
+          <th>Title Text</th>
+          <th>Score</th>
+          <th>Result</th>
+          <th>Notes</th>
+          <th>Compliance</th>
+          <th>Severity</th>
+          <th>Service Name</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for i in data %}
           {% set d = data[i] %}
-        <li>{{ d['account_id'] }} - {{ d['title_id'] }} - {{ d['region'] }}</li>
+          {% if d['result'] == 'PASS' %}
+          {% set color = 'green' %}
+          {% elif d['result'] == 'FAIL' %}
+          {% set color = 'red' %}
+          {% elif d['result'] == 'INFO' %}
+          {% set color = 'blue' %}
+          {% else %}
+          {% set color = 'white' %}
+          {% endif %}
+          <tr class="bg-{{ color }}">
+            <td>{{ d['account_id'] }}</td>
+            <td>{{ d['region'] }}</td>
+            <td>{{ d['title_id'] }}</td>
+            <td>{{ d['title_text'] }}</td>
+            <td>{{ d['scored'] }}</td>
+            <td>{{ d['result'] }}</td>
+            <td>{{ d['notes'] }}</td>
+            <td>{{ d['compliance'] }}</td>
+            <td>{{ d['severity'] }}</td>
+            <td>{{ d['service_name'] }}</td>
+          </tr>
         {% endfor %}
-      </ul>
+        </tbody>
+      </table>
+
     </div>
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
