@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Dont store CSV files or reports
+*.csv
+report.html
