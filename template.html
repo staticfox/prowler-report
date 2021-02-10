@@ -38,12 +38,11 @@
       <h1>Prowler Scan Results</h1>
       <div class="row">
         <h2>Summary</h2>
-        <div class="col col-4 totals">Accounts:<br /> {{ totals['accounts'] | length }}</div>
-        <div class="col col-4 totals">Regions:<br /> {{ totals['regions'] | length }}</div>
+        <div class="col col-4 totals">Accounts:<br /> {{ totals['accounts'] | join(', ') }}</div>
+        <div class="col col-4 totals">Regions:<br /> {{ totals['regions'] | join(', ') }}</div>
         <div class="col col-4 totals">Total Scans:<br /> {{ totals['scan_results'] | length }}</div>
-        <div class="col col-4 totals">Passes:<br /> {{ totals['passes'] | length }}</div>
-        <div class="col col-4 totals">Fails:<br /> {{ totals['fails'] | length }}</div>
-        <div class="col col-4 totals">Infos:<br /> {{ totals['infos'] | length }}</div>
+        <canvas id="result_doughnut" width="350" height="300"></canvas>
+        <canvas id="severity_doughnut" width="350" height="300"></canvas>
       </div>
       <div class="row">
         <h2>Findings</h2>
@@ -51,27 +50,27 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
               <button class="accordion-button collapsed bg-red" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                Fails (<strong>{{ totals['fails'] | length }} total</strong>,
+                Fails (<strong>{{ totals['fails'] | length }} total</strong>{# ,
                 {% for i in totals['all_by_sev'] %}
                   {{ totals['all_by_sev'][i] | length }}
                   {% if i == '' %}unmarked{% else %}{{ i }}{% endif %}{% if not loop.last %}, {% endif %}
-                {% endfor %}
+                {% endfor %} #}
                 )
               </button>
             </h2>
-            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordion">
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion">
               <div class="accordion-body">
-                <table class="table table-sm">
+                <table class="table table-sm" data-toggle="table">
                 <thead>
                   <tr>
-                    <th>Account ID</th>
-                    <th>Region</th>
-                    <th>ID</th>
-                    <th>Text</th>
-                    <th>Notes</th>
-                    <th>Compliance</th>
-                    <th>Severity</th>
-                    <th>Service Name</th>
+                    <th data-sort="int">Account ID</th>
+                    <th data-sort="string">Region</th>
+                    <th data-sort="string">ID</th>
+                    <th data-sort="string">Text</th>
+                    <th data-sort="string">Notes</th>
+                    <th data-sort="string">Compliance</th>
+                    <th data-sort="string">Severity</th>
+                    <th data-sort="string">Service Name</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -96,22 +95,22 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwo">
               <button class="accordion-button collapsed bg-blue" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                Infos
+                Infos (<strong>{{ totals['infos'] | length }} total</strong>)
               </button>
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordion">
               <div class="accordion-body">
-                <table class="table table-sm">
+                <table class="table table-sm" data-toggle="table">
                 <thead>
                   <tr>
-                    <th>Account ID</th>
-                    <th>Region</th>
-                    <th>ID</th>
-                    <th>Text</th>
-                    <th>Notes</th>
-                    <th>Compliance</th>
-                    <th>Severity</th>
-                    <th>Service Name</th>
+                    <th data-sort="int">Account ID</th>
+                    <th data-sort="string">Region</th>
+                    <th data-sort="string">ID</th>
+                    <th data-sort="string">Text</th>
+                    <th data-sort="string">Notes</th>
+                    <th data-sort="string">Compliance</th>
+                    <th data-sort="string">Severity</th>
+                    <th data-sort="string">Service Name</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -136,22 +135,22 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingThree">
               <button class="accordion-button collapsed bg-green" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                Passes
+                Passes (<strong>{{ totals['passes'] | length }} total</strong>)
               </button>
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordion">
               <div class="accordion-body">
-                <table class="table table-sm">
+                <table class="table table-sm" data-toggle="table">
                 <thead>
                   <tr>
-                    <th>Account ID</th>
-                    <th>Region</th>
-                    <th>ID</th>
-                    <th>Text</th>
-                    <th>Notes</th>
-                    <th>Compliance</th>
-                    <th>Severity</th>
-                    <th>Service Name</th>
+                    <th data-sort="int">Account ID</th>
+                    <th data-sort="string">Region</th>
+                    <th data-sort="string">ID</th>
+                    <th data-sort="string">Text</th>
+                    <th data-sort="string">Notes</th>
+                    <th data-sort="string">Compliance</th>
+                    <th data-sort="string">Severity</th>
+                    <th data-sort="string">Service Name</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -175,9 +174,96 @@
           </div>
         </div>
       </div>
-
     </div>
-    <!-- <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdn.rawgit.com/joequery/Stupid-Table-Plugin/master/stupidtable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" integrity="sha512-SuxO9djzjML6b9w9/I07IWnLnQhgyYVSpHZx0JV97kGBfTIsUYlWflyuW4ypnvhBrslz1yJ3R+S14fdCWmSmSA==" crossorigin="anonymous"></script>
+    <script>
+    var set_title = function(t){
+      return {
+        display: true,
+        text: t,
+        fontColor: 'black',
+      }
+    }
+
+    $('table').each(function(){
+      $(this).stupidtable();
+    });
+
+    var ctx = document.getElementById('result_doughnut');
+    var result_doughnut = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Passes', 'Fails', 'Infos'],
+            datasets: [{
+                label: '',
+                data: [
+                  {{ totals['passes'] | length }},
+                  {{ totals['fails'] | length }},
+                  {{ totals['infos'] | length }}
+                ],
+                backgroundColor: [
+                    'rgba(102,178,102, 0.2)',
+                    'rgba(255,76,76, 0.2)',
+                    'rgba(127,127,255, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(102,178,102, 1)',
+                    'rgba(255,76,76, 1)',
+                    'rgba(127,127,255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false,
+            title: set_title("Results")
+        }
+    });
+
+    var ctx = document.getElementById('severity_doughnut');
+    var severity_doughnut = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [
+              'Unmarked','Software and configuration checks',
+              'Informational', 'Low', 'Medium', 'High', 'Critical'
+            ],
+            datasets: [{
+                label: '',
+                data: [
+                  {% for t in totals['all_by_sev'] %}
+                    {{ totals['all_by_sev'][t] | length }}{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                ],
+                backgroundColor: [
+                  'rgba(255,222,173, 0.2)',
+                  'rgba(255,173,206, 0.2)',
+                  'rgba(173,206,255, 0.2)',
+                  'rgba(206,255,173, 0.2)',
+                  'rgba(229,229,0, 0.2)',
+                  'rgba(232,72,85, 0.2)',
+                  'rgba(208,64,76, 0.5)',
+                ],
+                borderColor: [
+                  'rgba(255,222,173, 1)',
+                  'rgba(255,173,206, 1)',
+                  'rgba(173,206,255, 1)',
+                  'rgba(206,255,173, 1)',
+                  'rgba(229,229,0, 1)',
+                  'rgba(232,72,85, 1)',
+                  'rgba(208,64,76, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false,
+            title: set_title("Severities")
+        }
+    });
+    </script>
   </body>
 </html>

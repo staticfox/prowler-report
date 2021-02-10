@@ -43,8 +43,6 @@ def run():
             d = csv_data[idx]
             t = totals
 
-
-
             if d['account_id'] not in t['accounts']:
                 t['accounts'].append(d['account_id'])
 
