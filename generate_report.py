@@ -11,7 +11,11 @@ def run():
         'scan_results': [],
         'passes': [],
         'fails': [],
-        'infos': []
+        'infos': [],
+        'all_by_sev': {},
+        'passes_by_sev': {},
+        'fails_by_sev': {},
+        'infos_by_sev': {},
     }
 
     with open('template.html') as f:
@@ -39,6 +43,8 @@ def run():
             d = csv_data[idx]
             t = totals
 
+
+
             if d['account_id'] not in t['accounts']:
                 t['accounts'].append(d['account_id'])
 
@@ -54,8 +60,14 @@ def run():
             elif d['result'] == 'INFO':
                 t['infos'].append(idx)
 
-    t = Template(tpl)
-    rendered = t.render(data=csv_data, totals=totals)
+            l = d['severity'].lower()
+            if l not in t['all_by_sev']:
+                t['all_by_sev'][l] = list()
+            if idx not in t['all_by_sev'][l]:
+                t['all_by_sev'][l].append(idx)
+
+    tpl = Template(tpl)
+    rendered = tpl.render(data=csv_data, totals=totals)
 
     with open('report.html', 'w') as f:
         f.write(rendered)

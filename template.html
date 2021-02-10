@@ -1,76 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Jinja2 Template Example</title>
+
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <style type="text/css">
-      .container {
-        padding-top: 80px;
-      }
-      .bg-green {
-        background-color: rgba(102,178,102,.8);
-      }
-      .bg-red {
-        background-color: rgba(255,76,76,.8);
-      }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <title>Prowler Scan Results</title>
   </head>
+
+  <style type="text/css">
+    .container {
+      padding-top: 80px;
+      max-width: 1400px;
+    }
+    .bg-green {
+      background-color: rgba(102,178,102,.2);
+    }
+    .bg-red {
+      background-color: rgba(255,76,76,.2);
+    }
+    .bg-blue {
+      background-color: rgba(127,127,255,.2);
+    }
+    .totals {
+      display: inline-block;
+      margin: 0 auto;
+      padding: 1em;
+    }
+    .row {
+      padding-left: 1em;
+      padding-right: 1em;
+    }
+  </style>
+
   <body>
     <div class="container">
-      <h1>Totals</h1>
-      <p>Accounts: {{ totals['accounts'] | length }}</p>
-      <p>Regions: {{ totals['regions'] | length }}</p>
-      <p>Total Scans: {{ totals['scan_results'] | length }}</p>
-      <p>Passes: {{ totals['passes'] | length }}</p>
-      <p>Fails: {{ totals['fails'] | length }}</p>
-      <p>Infos: {{ totals['infos'] | length }}</p>
-      <h1>Findings</h1>
-      <table class="table table-striped table-sm">
-      <thead>
-        <tr>
-          <th>Account ID</th>
-          <th>Region</th>
-          <th>Title ID</th>
-          <th>Title Text</th>
-          <th>Score</th>
-          <th>Result</th>
-          <th>Notes</th>
-          <th>Compliance</th>
-          <th>Severity</th>
-          <th>Service Name</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for i in data %}
-          {% set d = data[i] %}
-          {% if d['result'] == 'PASS' %}
-          {% set color = 'green' %}
-          {% elif d['result'] == 'FAIL' %}
-          {% set color = 'red' %}
-          {% elif d['result'] == 'INFO' %}
-          {% set color = 'blue' %}
-          {% else %}
-          {% set color = 'white' %}
-          {% endif %}
-          <tr class="bg-{{ color }}">
-            <td>{{ d['account_id'] }}</td>
-            <td>{{ d['region'] }}</td>
-            <td>{{ d['title_id'] }}</td>
-            <td>{{ d['title_text'] }}</td>
-            <td>{{ d['scored'] }}</td>
-            <td>{{ d['result'] }}</td>
-            <td>{{ d['notes'] }}</td>
-            <td>{{ d['compliance'] }}</td>
-            <td>{{ d['severity'] }}</td>
-            <td>{{ d['service_name'] }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+      <h1>Prowler Scan Results</h1>
+      <div class="row">
+        <h2>Summary</h2>
+        <div class="col col-4 totals">Accounts:<br /> {{ totals['accounts'] | length }}</div>
+        <div class="col col-4 totals">Regions:<br /> {{ totals['regions'] | length }}</div>
+        <div class="col col-4 totals">Total Scans:<br /> {{ totals['scan_results'] | length }}</div>
+        <div class="col col-4 totals">Passes:<br /> {{ totals['passes'] | length }}</div>
+        <div class="col col-4 totals">Fails:<br /> {{ totals['fails'] | length }}</div>
+        <div class="col col-4 totals">Infos:<br /> {{ totals['infos'] | length }}</div>
+      </div>
+      <div class="row">
+        <h2>Findings</h2>
+        <div class="accordion" id="accordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button collapsed bg-red" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                Fails (<strong>{{ totals['fails'] | length }} total</strong>,
+                {% for i in totals['all_by_sev'] %}
+                  {{ totals['all_by_sev'][i] | length }}
+                  {% if i == '' %}unmarked{% else %}{{ i }}{% endif %}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                )
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordion">
+              <div class="accordion-body">
+                <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Account ID</th>
+                    <th>Region</th>
+                    <th>ID</th>
+                    <th>Text</th>
+                    <th>Notes</th>
+                    <th>Compliance</th>
+                    <th>Severity</th>
+                    <th>Service Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for i in totals['fails'] %}
+                    {% set d = data[i] %}
+                    <tr>
+                      <td>{{ d['account_id'] }}</td>
+                      <td>{{ d['region'] | truncate(12) }}</td>
+                      <td>{{ d['title_id'] }}</td>
+                      <td><strong>{{ d['title_text'] }}</strong></td>
+                      <td>{{ d['notes'] }}</td>
+                      <td>{{ d['compliance'] }}</td>
+                      <td>{{ d['severity'] }}</td>
+                      <td>{{ d['service_name'] }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button collapsed bg-blue" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Infos
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordion">
+              <div class="accordion-body">
+                <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Account ID</th>
+                    <th>Region</th>
+                    <th>ID</th>
+                    <th>Text</th>
+                    <th>Notes</th>
+                    <th>Compliance</th>
+                    <th>Severity</th>
+                    <th>Service Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for i in totals['infos'] %}
+                    {% set d = data[i] %}
+                    <tr>
+                      <td>{{ d['account_id'] }}</td>
+                      <td>{{ d['region'] | truncate(12) }}</td>
+                      <td>{{ d['title_id'] }}</td>
+                      <td><strong>{{ d['title_text'] }}</strong></td>
+                      <td>{{ d['notes'] }}</td>
+                      <td>{{ d['compliance'] }}</td>
+                      <td>{{ d['severity'] }}</td>
+                      <td>{{ d['service_name'] }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThree">
+              <button class="accordion-button collapsed bg-green" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                Passes
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordion">
+              <div class="accordion-body">
+                <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Account ID</th>
+                    <th>Region</th>
+                    <th>ID</th>
+                    <th>Text</th>
+                    <th>Notes</th>
+                    <th>Compliance</th>
+                    <th>Severity</th>
+                    <th>Service Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for i in totals['passes'] %}
+                    {% set d = data[i] %}
+                    <tr>
+                      <td>{{ d['account_id'] }}</td>
+                      <td>{{ d['region'] | truncate(12) }}</td>
+                      <td>{{ d['title_id'] }}</td>
+                      <td><strong>{{ d['title_text'] }}</strong></td>
+                      <td>{{ d['notes'] }}</td>
+                      <td>{{ d['compliance'] }}</td>
+                      <td>{{ d['severity'] }}</td>
+                      <td>{{ d['service_name'] }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
-    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <!-- <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
   </body>
 </html>
