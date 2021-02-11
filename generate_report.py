@@ -78,7 +78,7 @@ def run():
     with open('prowler-test.csv') as csv_file:
         csv_reader = reader(csv_file, delimiter=',')
         next(csv_reader, None)
-        totals = Total(list(map(ProwlerTestResult._make, csv_reader)))
+        totals = Total(list(map(ProwlerTestResult._make), csv_reader))
         csv_data = total._results
 
     tpl = Template(tpl)
