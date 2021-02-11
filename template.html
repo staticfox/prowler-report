@@ -50,7 +50,7 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
               <button class="accordion-button collapsed bg-red" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                Fails (<strong>{{ totals['fails'] | length }} total</strong>{# ,
+                Fails (<strong>{{ totals.fails | length }} total</strong>{# ,
                 {% for i in totals['all_by_sev'] %}
                   {{ totals['all_by_sev'][i] | length }}
                   {% if i == '' %}unmarked{% else %}{{ i }}{% endif %}{% if not loop.last %}, {% endif %}
@@ -74,17 +74,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for i in totals['fails'] %}
-                    {% set d = data[i] %}
+                  {% for d in totals.fails %}
                     <tr>
-                      <td>{{ d['account_id'] }}</td>
-                      <td>{{ d['region'] | truncate(12) }}</td>
-                      <td>{{ d['title_id'] }}</td>
-                      <td><strong>{{ d['title_text'] }}</strong></td>
-                      <td>{{ d['notes'] }}</td>
-                      <td>{{ d['compliance'] }}</td>
-                      <td>{{ d['severity'] }}</td>
-                      <td>{{ d['service_name'] }}</td>
+                      <td>{{ d.account_id }}</td>
+                      <td>{{ d.region | truncate(12) }}</td>
+                      <td>{{ d.title_id }}</td>
+                      <td><strong>{{ d.title_text }}</strong></td>
+                      <td>{{ d.notes }}</td>
+                      <td>{{ d.compliance }}</td>
+                      <td>{{ d.severity }}</td>
+                      <td>{{ d.service_name }}</td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -114,17 +113,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for i in totals['infos'] %}
-                    {% set d = data[i] %}
+                  {% for d in totals.infos %}
                     <tr>
-                      <td>{{ d['account_id'] }}</td>
-                      <td>{{ d['region'] | truncate(12) }}</td>
-                      <td>{{ d['title_id'] }}</td>
-                      <td><strong>{{ d['title_text'] }}</strong></td>
-                      <td>{{ d['notes'] }}</td>
-                      <td>{{ d['compliance'] }}</td>
-                      <td>{{ d['severity'] }}</td>
-                      <td>{{ d['service_name'] }}</td>
+                      <td>{{ d.account_id }}</td>
+                      <td>{{ d.region | truncate(12) }}</td>
+                      <td>{{ d.title_id }}</td>
+                      <td><strong>{{ d.title_text }}</strong></td>
+                      <td>{{ d.notes }}</td>
+                      <td>{{ d.compliance }}</td>
+                      <td>{{ d.severity }}</td>
+                      <td>{{ d.service_name }}</td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -135,7 +133,7 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingThree">
               <button class="accordion-button collapsed bg-green" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                Passes (<strong>{{ totals['passes'] | length }} total</strong>)
+                Passes (<strong>{{ totals.passes | length }} total</strong>)
               </button>
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordion">
@@ -154,17 +152,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for i in totals['passes'] %}
-                    {% set d = data[i] %}
+                  {% for d in totals.passes %}
                     <tr>
-                      <td>{{ d['account_id'] }}</td>
-                      <td>{{ d['region'] | truncate(12) }}</td>
-                      <td>{{ d['title_id'] }}</td>
-                      <td><strong>{{ d['title_text'] }}</strong></td>
-                      <td>{{ d['notes'] }}</td>
-                      <td>{{ d['compliance'] }}</td>
-                      <td>{{ d['severity'] }}</td>
-                      <td>{{ d['service_name'] }}</td>
+                      <td>{{ d.account_id }}</td>
+                      <td>{{ d.region | truncate(12) }}</td>
+                      <td>{{ d.title_id }}</td>
+                      <td><strong>{{ d.title_text }}</strong></td>
+                      <td>{{ d.notes }}</td>
+                      <td>{{ d.compliance }}</td>
+                      <td>{{ d.severity }}</td>
+                      <td>{{ d.service_name }}</td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -200,9 +197,9 @@
             datasets: [{
                 label: '',
                 data: [
-                  {{ totals['passes'] | length }},
-                  {{ totals['fails'] | length }},
-                  {{ totals['infos'] | length }}
+                  {{ totals.passes | length }},
+                  {{ totals.fails | length }},
+                  {{ totals.infos | length }}
                 ],
                 backgroundColor: [
                     'rgba(102,178,102, 0.2)',
@@ -234,8 +231,8 @@
             datasets: [{
                 label: '',
                 data: [
-                  {% for t in totals['all_by_sev'] %}
-                    {{ totals['all_by_sev'][t] | length }}{% if not loop.last %}, {% endif %}
+                  {% for t in totals.all_by_sev %}
+                    {{ totals.all_by_sev[t] | length }}{% if not loop.last %}, {% endif %}
                   {% endfor %}
                 ],
                 backgroundColor: [
